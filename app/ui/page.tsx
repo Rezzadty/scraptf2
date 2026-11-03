@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { BentoCard } from '@/shared/ui/BentoCard';
 import { Dock } from '@/shared/ui/Dock';
 import { FilterBar } from '@/shared/ui/FilterBar';
+import { PageLoader } from '@/shared/ui/PageLoader';
 import { formatPrice, formatDate, formatTime } from '@/shared/lib/format';
 import { ScrapeFilters, triggerScrape } from '@/shared/lib/api';
 
@@ -29,6 +30,7 @@ interface Meta {
 export default function DashboardPage() {
   const [meta, setMeta] = useState<Meta | null>(null);
   const [items, setItems] = useState<Item[]>([]);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [loading, setLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const filterSectionRef = useRef<HTMLDivElement>(null);
@@ -38,6 +40,8 @@ export default function DashboardPage() {
   }, []);
 
   async function loadInitialData() {
+    setInitialLoading(true);
+    const startTime = Date.now();
     try {
       const [itemsRes, metaRes] = await Promise.all([
         fetch('/api/items'),
@@ -55,6 +59,12 @@ export default function DashboardPage() {
       }
     } catch (err) {
       console.error('Failed to load initial data:', err);
+    } finally {
+      const elapsed = Date.now() - startTime;
+      const remaining = Math.max(0, 600 - elapsed);
+      setTimeout(() => {
+        setInitialLoading(false);
+      }, remaining);
     }
   }
 
@@ -89,6 +99,7 @@ export default function DashboardPage() {
 
   return (
     <>
+      {initialLoading && <PageLoader text="Loading dashboard..." />}
       <div className="min-h-screen relative pb-24">
         {/* Background image */}
         <div

@@ -15,6 +15,24 @@ body {
   color: var(--text);
 }
 
+@keyframes custom-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner-blue {
+  width: 48px;
+  height: 48px;
+  border: 4px solid #A2C4E8;
+  border-top-color: #5A85B3;
+  border-radius: 50%;
+  animation: custom-spin 1s linear infinite;
+}
+
 #root {
   min-height: 100vh;
 }
