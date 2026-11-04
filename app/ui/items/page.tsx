@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { formatPrice } from '@/shared/lib/format';
 import { PageLoader } from '@/shared/ui/PageLoader';
+import { ItemDetailModal } from '@/shared/ui/ItemDetailModal';
 
 interface Item {
   id?: string | number;
@@ -14,6 +15,18 @@ interface Item {
   assetId?: string;
   item_url?: string;
   url?: string;
+  instanceId?: string;
+  classId?: string;
+  paint?: string;
+  spell?: string;
+  killstreaker?: string;
+  level?: number;
+  festivized?: number;
+  inspect?: string;
+  imageItem?: string;
+  wear?: string | null;
+  paintseed?: string | null;
+  item_id?: number;
 }
 
 export function AllItems() {
@@ -22,6 +35,7 @@ export function AllItems() {
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState<'price' | 'name'>('price');
   const [page, setPage] = useState(1);
+  const [selectedItem, setSelectedItem] = useState<Item | null>(null);
   const itemsPerPage = 50;
 
   async function fetchItems() {
@@ -125,66 +139,50 @@ export function AllItems() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {paginatedItems.map((item, idx) => {
-                  const storeUrl =
-                    item.item_url ||
-                    (item.url
-                      ? item.url.startsWith('http')
-                        ? item.url
-                        : `https://mannco.store/item/${item.url}`
-                      : null);
-                  return (
-                    <tr key={item.id || `${item.name}-${idx}`}>
-                      <td className="px-6 py-4 text-[#1A2A3A] font-medium">
-                        {item.name ||
-                          (item.sheen
-                            ? `${item.sheen} Item`
-                            : item.assetId
-                              ? `Listing #${item.assetId}`
-                              : 'Unknown Item')}
-                      </td>
-                      <td className="px-6 py-4 text-gray-500 font-mono text-sm">
-                        {item.id || '-'}
-                      </td>
-                      <td className="px-6 py-4 font-semibold text-[#1A2A3A]">
-                        {formatPrice(item.price || 0)}
-                      </td>
-                      <td className="px-6 py-4">
-                        <span
-                          className={`px-3 py-1 rounded-full text-sm ${
-                            item.craftable
-                              ? 'bg-green-100 text-green-700'
-                              : 'bg-gray-100 text-gray-600'
-                          }`}
+                {paginatedItems.map((item, idx) => (
+                  <tr key={item.id || `${item.name}-${idx}`}>
+                    <td className="px-6 py-4 text-[#1A2A3A] font-medium">
+                      {item.name ||
+                        (item.sheen
+                          ? `${item.sheen} Item`
+                          : item.assetId
+                            ? `Listing #${item.assetId}`
+                            : 'Unknown Item')}
+                    </td>
+                    <td className="px-6 py-4 text-gray-500 font-mono text-sm">
+                      {item.id || '-'}
+                    </td>
+                    <td className="px-6 py-4 font-semibold text-[#1A2A3A]">
+                      {formatPrice(item.price || 0)}
+                    </td>
+                    <td className="px-6 py-4">
+                      <span
+                        className={`px-3 py-1 rounded-full text-sm ${
+                          item.craftable
+                            ? 'bg-green-100 text-green-700'
+                            : 'bg-gray-100 text-gray-600'
+                        }`}
+                      >
+                        {item.craftable ? 'Yes' : 'No'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      {item.id ? (
+                        <button
+                          onClick={() => setSelectedItem(item)}
+                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold bg-[#7BA4D3]/15 text-[#5A85B3] hover:bg-[#7BA4D3] hover:text-white transition-all"
                         >
-                          {item.craftable ? 'Yes' : 'No'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        {storeUrl ? (
-                          <a
-                            href={storeUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold bg-[#7BA4D3]/15 text-[#5A85B3] hover:bg-[#7BA4D3] hover:text-white transition-all"
-                          >
-                            <span>Store</span>
-                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                              />
-                            </svg>
-                          </a>
-                        ) : (
-                          <span className="text-gray-400 text-sm">-</span>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
+                          <span>Details</span>
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </button>
+                      ) : (
+                        <span className="text-gray-400 text-sm">-</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
                 {paginatedItems.length === 0 && (
                   <tr>
                     <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
@@ -221,6 +219,12 @@ export function AllItems() {
           </div>
         </div>
       </div>
+
+      <ItemDetailModal
+        item={selectedItem}
+        isOpen={!!selectedItem}
+        onClose={() => setSelectedItem(null)}
+      />
     </>
   );
 }

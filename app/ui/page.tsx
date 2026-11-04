@@ -3,9 +3,9 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { BentoCard } from '@/shared/ui/BentoCard';
-import { Dock } from '@/shared/ui/Dock';
 import { FilterBar } from '@/shared/ui/FilterBar';
 import { PageLoader } from '@/shared/ui/PageLoader';
+import { ToastContainer } from '@/shared/ui/Toast';
 import { formatPrice, formatDate, formatTime } from '@/shared/lib/format';
 import { ScrapeFilters, triggerScrape } from '@/shared/lib/api';
 
@@ -161,23 +161,21 @@ export default function DashboardPage() {
             </div>
           </BentoCard>
 
-          {/* Status notification */}
-          {statusMessage && (
-            <div className="mb-6 p-4 rounded-2xl bg-white border border-[#7BA4D3]/30 text-sm text-[#1A2A3A] flex items-center justify-between shadow-sm">
-              <span>{statusMessage}</span>
-              <button
-                onClick={() => setStatusMessage(null)}
-                className="text-gray-400 hover:text-gray-600 text-xs font-bold px-2 py-1"
-              >
-                Dismiss
-              </button>
+          {/* Middle Row: Filter (Primary) + About Scrape (Sidebar) */}
+          <div ref={filterSectionRef} className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            {/* Filter & Scrape - Primary Action (2/3 width) */}
+            <div className="lg:col-span-2">
+              <BentoCard className="min-h-[280px]">
+                <FilterBar
+                  onApply={handleApplyFilter}
+                  loading={loading}
+                  currentFilters={meta?.filters_applied}
+                />
+              </BentoCard>
             </div>
-          )}
 
-          {/* Middle Row: About Scrape + Filter Card + Price Stats */}
-          <div ref={filterSectionRef} className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            {/* About Scrape */}
-            <BentoCard>
+            {/* About Scrape - Info Sidebar (1/3 width) */}
+            <BentoCard className="min-h-[280px]">
               <h2 className="text-lg font-bold text-[#1A2A3A] mb-3">About the Scrape</h2>
               {meta ? (
                 <div className="space-y-3">
@@ -212,33 +210,24 @@ export default function DashboardPage() {
                 </div>
               )}
             </BentoCard>
+          </div>
 
-            {/* Interactive Filter Card with Button */}
-            <BentoCard>
-              <FilterBar
-                onApply={handleApplyFilter}
-                loading={loading}
-                currentFilters={meta?.filters_applied}
-              />
-            </BentoCard>
-
-            {/* Stat Cards */}
-            <div className="grid grid-rows-2 gap-6">
-              {visualCards.map((card, idx) => (
-                <BentoCard key={idx} className="relative overflow-hidden">
-                  <div className="absolute inset-0 opacity-10" style={{ background: card.gradient }}></div>
-                  <div className="relative z-10 h-full flex flex-col justify-between">
-                    <h3 className="text-lg font-bold text-[#1A2A3A]">{card.title}</h3>
-                    <div className="text-3xl font-bold text-[#1A2A3A]">{card.price}</div>
-                  </div>
-                </BentoCard>
-              ))}
-            </div>
+          {/* Stat Cards Row */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            {visualCards.map((card, idx) => (
+              <BentoCard key={idx} className="relative overflow-hidden min-h-[140px]">
+                <div className="absolute inset-0 opacity-10" style={{ background: card.gradient }}></div>
+                <div className="relative z-10 h-full flex flex-col items-center justify-center text-center">
+                  <h3 className="text-lg font-bold text-[#1A2A3A] mb-2">{card.title}</h3>
+                  <div className="text-3xl font-bold text-[#1A2A3A]">{card.price}</div>
+                </div>
+              </BentoCard>
+            ))}
           </div>
 
           {/* Bottom Row */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-            <BentoCard className="flex flex-col items-center justify-center">
+            <BentoCard className="flex flex-col items-center justify-center min-h-[140px]">
               {meta ? (
                 <>
                   <p className="text-3xl font-bold text-[#1A2A3A]">{formatDate(meta.fetched_at)}</p>
@@ -252,7 +241,7 @@ export default function DashboardPage() {
               )}
             </BentoCard>
 
-            <BentoCard className="flex flex-col items-center justify-center">
+            <BentoCard className="flex flex-col items-center justify-center min-h-[140px]">
               {meta ? (
                 <>
                   <p className="text-3xl font-bold text-[#1A2A3A]">{formatTime(meta.fetched_at)}</p>
@@ -267,7 +256,7 @@ export default function DashboardPage() {
             </BentoCard>
 
             <Link href="/ui/items" className="group">
-              <BentoCard className="flex flex-col items-center justify-center hover:shadow-lg transition-shadow">
+              <BentoCard className="flex flex-col items-center justify-center hover:shadow-lg transition-shadow min-h-[140px]">
                 <div className="text-xl font-semibold text-[#7BA4D3] group-hover:text-[#5A85B3]">
                   View More
                 </div>
@@ -275,17 +264,12 @@ export default function DashboardPage() {
               </BentoCard>
             </Link>
 
-            <BentoCard className="flex flex-col items-center justify-center bg-gradient-to-br from-[#7BA4D3] to-[#8EC5FC] text-white">
+            <BentoCard className="flex flex-col items-center justify-center bg-gradient-to-br from-[#7BA4D3] to-[#8EC5FC] text-white min-h-[140px]">
               <div className="text-2xl font-bold">TF2 Market</div>
               <p className="text-sm mt-2 opacity-90">Real-time pricing</p>
             </BentoCard>
           </div>
         </div>
-
-        <Dock
-          onRefresh={loadInitialData}
-          onFilter={() => filterSectionRef.current?.scrollIntoView({ behavior: 'smooth' })}
-        />
       </div>
 
       <footer className="py-8 text-center border-t border-gray-200 bg-white">
@@ -294,6 +278,12 @@ export default function DashboardPage() {
         </p>
         <p className="text-xs text-gray-400 mt-1">© {new Date().getFullYear()} TF2 Market Tracker. All rights reserved.</p>
       </footer>
+
+      <ToastContainer
+        message={statusMessage}
+        type={statusMessage?.startsWith('Scrape failed') ? 'error' : 'success'}
+        onClose={() => setStatusMessage(null)}
+      />
     </>
   );
 }
