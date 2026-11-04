@@ -10,12 +10,10 @@ interface FilterBarProps {
   currentFilters?: Record<string, string>;
 }
 
-// Supported Games from Steam App IDs
 export const SUPPORTED_GAMES = [
   { id: '440', name: 'Team Fortress 2', desc: 'Hats, weapons, unusuals, spells' },
 ];
 
-// Model list presets for quick item selection
 export const ITEM_MODELS: Record<string, Array<{ label: string; value: string }>> = {
   '440': [
     { label: 'All TF2 Listings (App ID: 440)', value: '' },
@@ -119,14 +117,16 @@ export function FilterBar({
     });
   };
 
+  const inputClass = "w-full px-3.5 py-2 text-sm rounded-xl border focus:outline-none focus:ring-2 focus:ring-[#7BA4D3] transition-all bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500";
+
   return (
     <form onSubmit={handleSubmit} className="flex flex-col h-full justify-between space-y-4">
-      <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+      <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 pb-3">
         <div>
-          <h3 className="text-lg font-bold text-[#1A2A3A]">Filter & Scrape</h3>
-          <p className="text-xs text-gray-500">Filter by Item, Class, Wear & Quality</p>
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white">Filter & Scrape</h3>
+          <p className="text-xs text-gray-500 dark:text-gray-400">Filter by Item, Class, Wear & Quality</p>
         </div>
-        <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[#7BA4D3]/15 text-[#5A85B3]">
+        <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[#7BA4D3]/15 text-[#5A85B3] dark:text-[#A2C4E8]">
           App ID: {game}
         </span>
       </div>
@@ -135,7 +135,7 @@ export function FilterBar({
 
         {/* Item Model Selection */}
         <div>
-          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+          <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
             Item Model Preset
           </label>
           <select
@@ -144,7 +144,7 @@ export function FilterBar({
               setSelectedModel(e.target.value);
               if (e.target.value) setCustomItem('');
             }}
-            className="w-full px-3.5 py-2 text-sm rounded-xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#7BA4D3] focus:bg-white transition-all text-[#1A2A3A]"
+            className={inputClass}
           >
             {availableModels.map((m) => (
               <option key={m.value} value={m.value}>
@@ -158,7 +158,7 @@ export function FilterBar({
         {/* Custom Item input if selected */}
         {selectedModel === 'CUSTOM' && (
           <div className="sm:col-span-2">
-            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
               Custom Item Identifier / Slug
             </label>
             <input
@@ -166,20 +166,20 @@ export function FilterBar({
               value={customItem}
               onChange={(e) => setCustomItem(e.target.value)}
               placeholder="e.g. 440-australium-rocket-launcher or item ID"
-              className="w-full px-3.5 py-2 text-sm rounded-xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#7BA4D3] focus:bg-white transition-all text-[#1A2A3A]"
+              className={inputClass}
             />
           </div>
         )}
 
         {/* Class Filter */}
         <div>
-          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+          <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
             Class
           </label>
           <select
             value={itemClass}
             onChange={(e) => setItemClass(e.target.value)}
-            className="w-full px-3.5 py-2 text-sm rounded-xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#7BA4D3] focus:bg-white transition-all text-[#1A2A3A]"
+            className={inputClass}
           >
             {TF2_CLASSES.map((c) => (
               <option key={c} value={c === 'All Classes' ? '' : c}>
@@ -191,13 +191,13 @@ export function FilterBar({
 
         {/* Wear Filter */}
         <div>
-          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+          <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
             Wear (Exterior)
           </label>
           <select
             value={wear}
             onChange={(e) => setWear(e.target.value)}
-            className="w-full px-3.5 py-2 text-sm rounded-xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#7BA4D3] focus:bg-white transition-all text-[#1A2A3A]"
+            className={inputClass}
           >
             <option value="">All Wears</option>
             {WEAR_VALUES.map((w) => (
@@ -210,13 +210,13 @@ export function FilterBar({
 
         {/* Quality Filter */}
         <div>
-          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+          <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
             Quality
           </label>
           <select
             value={quality}
             onChange={(e) => setQuality(e.target.value)}
-            className="w-full px-3.5 py-2 text-sm rounded-xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#7BA4D3] focus:bg-white transition-all text-[#1A2A3A]"
+            className={inputClass}
           >
             <option value="">All Qualities</option>
             {QUALITIES.map((q) => (
@@ -229,13 +229,13 @@ export function FilterBar({
 
         {/* Spell Filter (primarily TF2) */}
         <div>
-          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+          <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
             Spell
           </label>
           <select
             value={spell}
             onChange={(e) => setSpell(e.target.value)}
-            className="w-full px-3.5 py-2 text-sm rounded-xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#7BA4D3] focus:bg-white transition-all text-[#1A2A3A]"
+            className={inputClass}
           >
             <option value="">All Spells</option>
             {SPELLS.map((s) => (

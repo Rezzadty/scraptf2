@@ -8,6 +8,7 @@ import { PageLoader } from '@/shared/ui/PageLoader';
 import { ToastContainer } from '@/shared/ui/Toast';
 import { formatPrice, formatDate, formatTime } from '@/shared/lib/format';
 import { ScrapeFilters, triggerScrape } from '@/shared/lib/api';
+import { useDarkMode } from '@/shared/lib/darkMode';
 
 interface Item {
   id?: string;
@@ -34,6 +35,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const filterSectionRef = useRef<HTMLDivElement>(null);
+  const { theme, toggleTheme } = useDarkMode();
 
   useEffect(() => {
     loadInitialData();
@@ -100,7 +102,7 @@ export default function DashboardPage() {
   return (
     <>
       {initialLoading && <PageLoader text="Loading dashboard..." />}
-      <div className="min-h-screen relative pb-24">
+      <div className="min-h-screen relative pb-24 bg-gray-50 dark:bg-gray-900">
         {/* Background image */}
         <div
           className="fixed inset-0 bg-cover bg-center bg-no-repeat opacity-10 pointer-events-none"
@@ -118,21 +120,35 @@ export default function DashboardPage() {
             <div className="flex flex-col lg:flex-row h-full items-center gap-8">
               {/* Left: Data Column */}
               <div className="flex-1 text-left">
-                <h1 className="text-4xl font-bold text-[#1A2A3A] mb-2">TF2 Market Tracker</h1>
-                <p className="text-[#1A2A3A]/70 mb-6">Welcome back! Here is the latest data from Mannco.store.</p>
+                <div className="flex items-center justify-between mb-4">
+                  <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-0">TF2 Market Tracker</h1>
+                  <button
+                    onClick={toggleTheme}
+                    className="p-2 rounded-xl bg-white/50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+                    aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+                  >
+                    {theme === 'light' ? (
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                    ) : (
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                    )}
+                  </button>
+                </div>
+                <p className="text-gray-700 dark:text-gray-300 mb-6">Welcome back! Here is the latest data from Mannco.store.</p>
 
                 {meta ? (
                   <div className="flex flex-wrap items-center gap-6">
-                    <div className="bg-white/50 p-3 rounded-2xl border border-gray-100">
+                    <div className="bg-white/50 dark:bg-gray-800/50 p-3 rounded-2xl border border-gray-200 dark:border-gray-700">
                       <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Total Items</p>
-                      <p className="text-2xl font-bold text-[#1A2A3A]">{meta.record_count}</p>
+                      <p className="text-2xl font-bold text-gray-900 dark:text-white">{meta.record_count}</p>
                     </div>
-                    <div className="bg-white/50 p-3 rounded-2xl border border-gray-100">
+                    <div className="bg-white/50 dark:bg-gray-800/50 p-3 rounded-2xl border border-gray-200 dark:border-gray-700">
                       <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Last Updated</p>
-                      <p className="text-xl font-semibold text-[#1A2A3A]">{formatDate(meta.fetched_at)}</p>
+                      <p className="text-xl font-semibold text-gray-900 dark:text-white">{formatDate(meta.fetched_at)}</p>
                     </div>
                     {meta.filters_applied && Object.keys(meta.filters_applied).length > 0 && (
-                      <div className="bg-white/50 p-3 rounded-2xl border border-gray-100">
+                      <div className="bg-white/50 dark:bg-gray-800/50 p-3 rounded-2xl border border-gray-200 dark:border-gray-700">
                         <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Active Filter</p>
                         <p className="text-sm font-semibold text-[#7BA4D3]">
                           {Object.entries(meta.filters_applied).map(([k, v]) => `${k}: ${v}`).join(', ')}
@@ -176,20 +192,20 @@ export default function DashboardPage() {
 
             {/* About Scrape - Info Sidebar (1/3 width) */}
             <BentoCard className="min-h-[280px]">
-              <h2 className="text-lg font-bold text-[#1A2A3A] mb-3">About the Scrape</h2>
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3">About the Scrape</h2>
               {meta ? (
                 <div className="space-y-3">
                   <div>
                     <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Target Item</p>
-                    <p className="text-[#1A2A3A] font-medium">{meta.target_item || meta.source_url?.split('/').pop() || 'Unknown'}</p>
+                    <p className="text-gray-900 dark:text-white font-medium">{meta.target_item || meta.source_url?.split('/').pop() || 'Unknown'}</p>
                   </div>
                   <div>
                     <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">API Version</p>
-                    <p className="text-[#1A2A3A] font-medium">{meta.api_version}</p>
+                    <p className="text-gray-900 dark:text-white font-medium">{meta.api_version}</p>
                   </div>
                   <div>
                     <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Pagination Style</p>
-                    <p className="text-[#1A2A3A] font-medium">{meta.pagination_style}</p>
+                    <p className="text-gray-900 dark:text-white font-medium">{meta.pagination_style}</p>
                   </div>
                   {meta.filters_applied && Object.keys(meta.filters_applied).length > 0 && (
                     <div>
@@ -199,7 +215,7 @@ export default function DashboardPage() {
                       </p>
                     </div>
                   )}
-                  <p className="text-xs text-gray-500 pt-2 border-t border-gray-100">
+                  <p className="text-xs text-gray-500 pt-2 border-t border-gray-200 dark:border-gray-700">
                     Data scraped from Mannco.store API.
                   </p>
                 </div>
@@ -218,8 +234,8 @@ export default function DashboardPage() {
               <BentoCard key={idx} className="relative overflow-hidden min-h-[140px]">
                 <div className="absolute inset-0 opacity-10" style={{ background: card.gradient }}></div>
                 <div className="relative z-10 h-full flex flex-col items-center justify-center text-center">
-                  <h3 className="text-lg font-bold text-[#1A2A3A] mb-2">{card.title}</h3>
-                  <div className="text-3xl font-bold text-[#1A2A3A]">{card.price}</div>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{card.title}</h3>
+                  <div className="text-3xl font-bold text-gray-900 dark:text-white">{card.price}</div>
                 </div>
               </BentoCard>
             ))}
@@ -230,7 +246,7 @@ export default function DashboardPage() {
             <BentoCard className="flex flex-col items-center justify-center min-h-[140px]">
               {meta ? (
                 <>
-                  <p className="text-3xl font-bold text-[#1A2A3A]">{formatDate(meta.fetched_at)}</p>
+                  <p className="text-3xl font-bold text-gray-900 dark:text-white">{formatDate(meta.fetched_at)}</p>
                   <p className="text-sm text-gray-500 mt-1">Last Updated</p>
                 </>
               ) : (
@@ -244,7 +260,7 @@ export default function DashboardPage() {
             <BentoCard className="flex flex-col items-center justify-center min-h-[140px]">
               {meta ? (
                 <>
-                  <p className="text-3xl font-bold text-[#1A2A3A]">{formatTime(meta.fetched_at)}</p>
+                  <p className="text-3xl font-bold text-gray-900 dark:text-white">{formatTime(meta.fetched_at)}</p>
                   <p className="text-sm text-gray-500 mt-1">UTC Time</p>
                 </>
               ) : (
@@ -272,11 +288,11 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <footer className="py-8 text-center border-t border-gray-200 bg-white">
-        <p className="text-sm text-gray-500 font-medium">
-          Created by <span className="text-[#7BA4D3] font-bold">Rezzadty</span>
+      <footer className="py-8 text-center border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+        <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+          Created by <a href="https://github.com/Rezzadty" className="text-[#7BA4D3] font-bold" target="_blank" rel="noopener noreferrer">Rezzadty</a>
         </p>
-        <p className="text-xs text-gray-400 mt-1">© {new Date().getFullYear()} TF2 Market Tracker. All rights reserved.</p>
+        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">© {new Date().getFullYear()} TF2 Market Tracker. All rights reserved.</p>
       </footer>
 
       <ToastContainer

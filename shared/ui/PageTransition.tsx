@@ -17,10 +17,10 @@ export function PageTransition() {
   if (!isLoading) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-white/95 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm">
       <div className="relative z-10 flex flex-col items-center gap-4">
         <div className="spinner-blue" />
-        <p className="text-[#1A2A3A] font-medium tracking-wide">Loading...</p>
+        <p className="text-gray-900 dark:text-white font-medium tracking-wide">Loading...</p>
       </div>
     </div>
   );
