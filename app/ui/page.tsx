@@ -102,6 +102,7 @@ export default function DashboardPage() {
   return (
     <>
       {initialLoading && <PageLoader text="Loading dashboard..." />}
+      {loading && <PageLoader text="Applying filters..." />}
       <div className="min-h-screen relative pb-24 bg-gray-50 dark:bg-gray-900">
         {/* Background image */}
         <div

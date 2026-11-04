@@ -6,10 +6,10 @@ interface PageLoaderProps {
 
 export function PageLoader({ text = "Loading..." }: PageLoaderProps) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-white">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-white dark:bg-gray-900">
       <div className="relative z-10 flex flex-col items-center gap-4">
         <div className="spinner-blue" />
-        <p className="text-[#1A2A3A] font-medium tracking-wide">{text}</p>
+        <p className="text-gray-900 dark:text-white font-medium tracking-wide">{text}</p>
       </div>
     </div>
   );

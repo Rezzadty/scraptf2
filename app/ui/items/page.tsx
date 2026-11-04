@@ -46,6 +46,7 @@ interface Filters {
 }
 
 export function AllItems() {
+  const { theme, toggleTheme } = useDarkMode();
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
   const [sort, setSort] = useState<SortField>('price');
@@ -66,8 +67,16 @@ export function AllItems() {
   const [autoRefresh, setAutoRefresh] = useState(false);
   const [refreshInterval, setRefreshInterval] = useState(60);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [filterLoading, setFilterLoading] = useState(false);
   const [lastFetched, setLastFetched] = useState<Date | null>(null);
-  const { theme, toggleTheme } = useDarkMode();
+
+
+  // Show loader when filters change
+  useEffect(() => {
+    setFilterLoading(true);
+    const timer = setTimeout(() => setFilterLoading(false), 200);
+    return () => clearTimeout(timer);
+  }, [filters, showAdvancedFilters]);
 
   const allBots = [...new Set(items.map(i => i.bot).filter(Boolean))] as string[];
 
@@ -244,7 +253,7 @@ export function AllItems() {
 
   return (
     <>
-      {loading && <PageLoader text="Loading items..." />}
+      {filterLoading && <PageLoader text="Applying filters..." />}
       <div className="min-h-screen py-8 px-6 relative bg-gray-50 dark:bg-gray-900">
         {/* Background image */}
         <div
