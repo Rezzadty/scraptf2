@@ -4,28 +4,7 @@ import { useState, useEffect } from 'react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { formatPrice } from '@/shared/lib/format';
-
-interface Item {
-  id?: string | number;
-  item_id?: number;
-  name?: string;
-  price?: number;
-  craftable?: boolean;
-  sheen?: string;
-  assetId?: string;
-  instanceId?: string;
-  classId?: string;
-  paint?: string;
-  spell?: string;
-  killstreaker?: string;
-  level?: number;
-  festivized?: number;
-  inspect?: string;
-  imageItem?: string;
-  wear?: string | null;
-  paintseed?: string | null;
-  item_url?: string;
-}
+import { Item } from '@/shared/types/item';
 
 export default function ItemDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const [item, setItem] = useState<Item | null>(null);

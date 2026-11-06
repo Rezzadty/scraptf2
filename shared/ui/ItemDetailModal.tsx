@@ -3,29 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { ReactNode } from 'react';
 import { formatPrice } from '@/shared/lib/format';
-
-interface Item {
-  id?: string | number;
-  name?: string;
-  price?: number;
-  craftable?: boolean;
-  sheen?: string;
-  assetId?: string;
-  instanceId?: string;
-  classId?: string;
-  paint?: string;
-  spell?: string;
-  killstreaker?: string;
-  level?: number;
-  festivized?: number;
-  inspect?: string;
-  imageItem?: string;
-  wear?: string | null;
-  paintseed?: string | null;
-  item_url?: string;
-  item_id?: number;
-  bot?: string;
-}
+import { Item } from '@/shared/types/item';
 
 interface ItemDetailModalProps {
   item: Item | null;

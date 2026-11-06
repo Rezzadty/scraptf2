@@ -10,24 +10,7 @@ import { formatPrice, formatDate, formatTime } from '@/shared/lib/format';
 import { ScrapeFilters, triggerScrape } from '@/shared/lib/api';
 import { useDarkMode } from '@/shared/lib/darkMode';
 import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
-
-interface Item {
-  id?: string;
-  name?: string;
-  price?: number;
-  craftable?: boolean;
-}
-
-interface Meta {
-  fetched_at: string;
-  record_count: number;
-  source_url: string;
-  api_version: string;
-  pagination_style: string;
-  script_version?: string;
-  target_item?: string;
-  filters_applied?: Record<string, string>;
-}
+import { Item, Meta } from '@/shared/types/item';
 
 export default function DashboardPage() {
   const [meta, setMeta] = useState<Meta | null>(null);

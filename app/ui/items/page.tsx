@@ -7,30 +7,7 @@ import { PageLoader } from '@/shared/ui/PageLoader';
 import { ItemDetailModal } from '@/shared/ui/ItemDetailModal';
 import { useDarkMode } from '@/shared/lib/darkMode';
 import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
-
-interface Item {
-  id?: string | number;
-  name?: string;
-  price?: number;
-  craftable?: boolean;
-  sheen?: string;
-  assetId?: string;
-  item_url?: string;
-  url?: string;
-  instanceId?: string;
-  classId?: string;
-  paint?: string;
-  spell?: string;
-  killstreaker?: string;
-  level?: number;
-  festivized?: number;
-  inspect?: string;
-  imageItem?: string;
-  wear?: string | null;
-  paintseed?: string | null;
-  item_id?: number;
-  bot?: string;
-}
+import { Item } from '@/shared/types/item';
 
 type SortField = 'price' | 'name';
 type SortDirection = 'asc' | 'desc';
