@@ -231,6 +231,15 @@ export default function DashboardPage() {
               </BentoCard>
             </Link>
 
+            <Link href="/ui/live" className="group">
+              <BentoCard className="flex flex-col items-center justify-center hover:shadow-lg transition-shadow min-h-[140px]">
+                <div className="text-xl font-semibold text-[#FF6B6B] group-hover:text-[#FF5252]">
+                  Live Feed
+                </div>
+                <p className="text-sm text-gray-500 mt-1">Real-time WebSocket listings</p>
+              </BentoCard>
+            </Link>
+
             <BentoCard className="flex flex-col items-center justify-center bg-gradient-to-br from-[#7BA4D3] to-[#8EC5FC] text-white min-h-[140px]">
               <div className="text-2xl font-bold">TF2 Market</div>
               <p className="text-sm mt-2 opacity-90">Real-time pricing</p>
