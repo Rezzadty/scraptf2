@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import Link from 'next/link';
 import { BentoCard } from '@/shared/ui/BentoCard';
 import { FilterBar } from '@/shared/ui/FilterBar';
@@ -11,56 +11,21 @@ import { ScrapeFilters, triggerScrape } from '@/shared/lib/api';
 import { useDarkMode } from '@/shared/lib/darkMode';
 import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
 import { Item, Meta } from '@/shared/types/item';
+import { useItems } from '@/shared/hooks/useItems';
 
 export default function DashboardPage() {
-  const [meta, setMeta] = useState<Meta | null>(null);
-  const [items, setItems] = useState<Item[]>([]);
-  const [initialLoading, setInitialLoading] = useState(true);
+  const { items, meta, isLoading, refresh } = useItems();
   const [loading, setLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const filterSectionRef = useRef<HTMLDivElement>(null);
   const { theme, toggleTheme } = useDarkMode();
-
-  useEffect(() => {
-    loadInitialData();
-  }, []);
-
-  async function loadInitialData() {
-    setInitialLoading(true);
-    const startTime = Date.now();
-    try {
-      const [itemsRes, metaRes] = await Promise.all([
-        fetch('/api/items'),
-        fetch('/api/meta'),
-      ]);
-
-      if (itemsRes.ok) {
-        const itemsData = await itemsRes.json();
-        if (Array.isArray(itemsData)) setItems(itemsData);
-      }
-
-      if (metaRes.ok) {
-        const metaData = await metaRes.json();
-        if (metaData && metaData.fetched_at) setMeta(metaData);
-      }
-    } catch (err) {
-      console.error('Failed to load initial data:', err);
-    } finally {
-      const elapsed = Date.now() - startTime;
-      const remaining = Math.max(0, 600 - elapsed);
-      setTimeout(() => {
-        setInitialLoading(false);
-      }, remaining);
-    }
-  }
 
   async function handleApplyFilter(filters: ScrapeFilters) {
     setLoading(true);
     setStatusMessage(null);
     try {
       const result = await triggerScrape(filters);
-      if (result.items) setItems(result.items);
-      if (result.meta) setMeta(result.meta);
+      if (result.items) refresh();
       setStatusMessage(`Scrape successful: ${result.meta?.record_count ?? result.items?.length ?? 0} items fetched.`);
     } catch (err) {
       console.error('Scrape failed:', err);
@@ -86,7 +51,7 @@ export default function DashboardPage() {
   return (
     <ErrorBoundary>
       <>
-        {initialLoading && <PageLoader text="Loading dashboard..." />}
+        {isLoading && <PageLoader text="Loading dashboard..." />}
         {loading && <PageLoader text="Applying filters..." />}
         <div className="min-h-screen relative pb-24 bg-gray-50 dark:bg-gray-900">
         {/* Background image */}

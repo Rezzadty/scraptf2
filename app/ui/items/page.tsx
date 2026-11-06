@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { formatPrice } from '@/shared/lib/format';
 import { PageLoader } from '@/shared/ui/PageLoader';
@@ -8,6 +8,7 @@ import { ItemDetailModal } from '@/shared/ui/ItemDetailModal';
 import { useDarkMode } from '@/shared/lib/darkMode';
 import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
 import { Item } from '@/shared/types/item';
+import { useItems } from '@/shared/hooks/useItems';
 
 type SortField = 'price' | 'name';
 type SortDirection = 'asc' | 'desc';
@@ -25,8 +26,7 @@ interface Filters {
 
 export function AllItems() {
   const { theme, toggleTheme } = useDarkMode();
-  const [items, setItems] = useState<Item[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { items, isLoading, error, refresh } = useItems();
   const [sort, setSort] = useState<SortField>('price');
   const [sortDir, setSortDir] = useState<SortDirection>('desc');
   const [page, setPage] = useState(1);
@@ -58,34 +58,17 @@ export function AllItems() {
 
   const allBots = [...new Set(items.map(i => i.bot).filter(Boolean))] as string[];
 
-  const fetchItems = useCallback(async () => {
-    setLoading(true);
-    const startTime = Date.now();
-    try {
-      const res = await fetch('/api/items');
-      if (res.ok) {
-        const data = await res.json();
-        setItems(data);
-        setLastFetched(new Date());
-      }
-    } catch (err) {
-      console.error('Failed to fetch items:', err);
-    } finally {
-      const elapsed = Date.now() - startTime;
-      const remaining = Math.max(0, 600 - elapsed);
-      setTimeout(() => setLoading(false), remaining);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchItems();
-  }, [fetchItems]);
-
   useEffect(() => {
     if (!autoRefresh) return;
-    const timer = setInterval(fetchItems, refreshInterval * 1000);
+    const timer = setInterval(() => refresh(), refreshInterval * 1000);
     return () => clearInterval(timer);
-  }, [autoRefresh, refreshInterval, fetchItems]);
+  }, [autoRefresh, refreshInterval, refresh]);
+
+  useEffect(() => {
+    if (!isLoading && !error) {
+      setLastFetched(new Date());
+    }
+  }, [isLoading, error]);
 
   const filteredItems = items
     .filter((item) => {
