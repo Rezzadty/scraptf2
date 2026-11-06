@@ -1,13 +1,12 @@
 {
-  "fetched_at": "2026-11-04T19:27:58Z",
-  "record_count": 35,
-  "source_url": "https://api.mannco.store/item/listing/958",
+  "fetched_at": "2026-11-05T16:03:18Z",
+  "record_count": 4,
+  "source_url": "https://api.mannco.store/item/listing/440",
   "api_version": "v1",
   "pagination_style": "page",
   "script_version": "1.0.2",
-  "target_item": "958",
+  "target_item": "440",
   "filters_applied": {
-    "game": "440",
-    "item": "958"
+    "game": "440"
   }
 }
