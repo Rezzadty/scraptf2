@@ -94,7 +94,6 @@ export function FilterBar({
   currentGame = '440',
   currentFilters,
 }: FilterBarProps) {
-  const game = '440';
   const [selectedModel, setSelectedModel] = useState('');
   const [customItem, setCustomItem] = useState('');
   const [quality, setQuality] = useState(currentFilters?.quality || '');
@@ -102,13 +101,13 @@ export function FilterBar({
   const [itemClass, setItemClass] = useState(currentFilters?.class || '');
   const [spell, setSpell] = useState(currentFilters?.spell || '');
 
-  const availableModels = ITEM_MODELS[game] || [{ label: `All Listings (${game})`, value: '' }];
+  const availableModels = ITEM_MODELS[currentGame] || [{ label: `All Listings (${currentGame})`, value: '' }];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const finalItem = customItem.trim() || selectedModel || undefined;
     onApply({
-      game,
+      game: currentGame,
       item: finalItem,
       quality: quality || undefined,
       wear: wear || undefined,
@@ -127,7 +126,7 @@ export function FilterBar({
           <p className="text-xs text-gray-500 dark:text-gray-400">Filter by Item, Class, Wear & Quality</p>
         </div>
         <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[#7BA4D3]/15 text-[#5A85B3] dark:text-[#A2C4E8]">
-          App ID: {game}
+          App ID: {currentGame}
         </span>
       </div>
 

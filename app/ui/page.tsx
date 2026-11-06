@@ -9,6 +9,7 @@ import { ToastContainer } from '@/shared/ui/Toast';
 import { formatPrice, formatDate, formatTime } from '@/shared/lib/format';
 import { ScrapeFilters, triggerScrape } from '@/shared/lib/api';
 import { useDarkMode } from '@/shared/lib/darkMode';
+import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
 
 interface Item {
   id?: string;
@@ -100,10 +101,11 @@ export default function DashboardPage() {
   ];
 
   return (
-    <>
-      {initialLoading && <PageLoader text="Loading dashboard..." />}
-      {loading && <PageLoader text="Applying filters..." />}
-      <div className="min-h-screen relative pb-24 bg-gray-50 dark:bg-gray-900">
+    <ErrorBoundary>
+      <>
+        {initialLoading && <PageLoader text="Loading dashboard..." />}
+        {loading && <PageLoader text="Applying filters..." />}
+        <div className="min-h-screen relative pb-24 bg-gray-50 dark:bg-gray-900">
         {/* Background image */}
         <div
           className="fixed inset-0 bg-cover bg-center bg-no-repeat opacity-10 pointer-events-none"
@@ -301,6 +303,7 @@ export default function DashboardPage() {
         type={statusMessage?.startsWith('Scrape failed') ? 'error' : 'success'}
         onClose={() => setStatusMessage(null)}
       />
-    </>
+      </>
+    </ErrorBoundary>
   );
 }

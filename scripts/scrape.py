@@ -240,6 +240,10 @@ def fetch_page_cursor_style(session, config, state) -> List[Dict]:
         params["wear"] = config.wear
     if config.item_class:
         params["class"] = config.item_class
+
+    r = session.get(url, params=params, timeout=config.request_timeout)
+    _check_response(r, url)
+    return _extract_records(r.json())
     
 def fetch_all(session, config) -> List[Dict]:
     fetchers = {

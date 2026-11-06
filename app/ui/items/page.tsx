@@ -6,6 +6,7 @@ import { formatPrice } from '@/shared/lib/format';
 import { PageLoader } from '@/shared/ui/PageLoader';
 import { ItemDetailModal } from '@/shared/ui/ItemDetailModal';
 import { useDarkMode } from '@/shared/lib/darkMode';
+import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
 
 interface Item {
   id?: string | number;
@@ -252,9 +253,10 @@ export function AllItems() {
   const tableStyle = { borderColor: theme === 'dark' ? '#374151' : '#e5e7eb' };
 
   return (
-    <>
-      {filterLoading && <PageLoader text="Applying filters..." />}
-      <div className="min-h-screen py-8 px-6 relative bg-gray-50 dark:bg-gray-900">
+    <ErrorBoundary>
+      <>
+        {filterLoading && <PageLoader text="Applying filters..." />}
+        <div className="min-h-screen py-8 px-6 relative bg-gray-50 dark:bg-gray-900">
         {/* Background image */}
         <div
           className="fixed inset-0 bg-cover bg-center bg-no-repeat opacity-10 pointer-events-none"
@@ -588,7 +590,8 @@ export function AllItems() {
             </p>
           )}
         </footer>
-    </>
+      </>
+    </ErrorBoundary>
   );
 }
 
