@@ -116,7 +116,7 @@ export default function DashboardPage() {
               <div className="relative w-full lg:w-1/3 h-64 lg:h-auto flex justify-center items-center">
                 <div className="relative group">
                   {/* Art Frame */}
-                  <div className="absolute -inset-1 bg-gradient-to-r from-[#7BA4D3] to-[#A2C4E8] rounded-3xl blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
+                  <div className="absolute -inset-1 bg-linear-to-r from-[#7BA4D3] to-[#A2C4E8] rounded-3xl blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
                   <img
                     src="/assets/Sumi.jpg"
                     alt="Market Mascot"
@@ -132,7 +132,7 @@ export default function DashboardPage() {
           <div ref={filterSectionRef} className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
             {/* Filter & Scrape - Primary Action (2/3 width) */}
             <div className="lg:col-span-2">
-              <BentoCard className="min-h-[280px]">
+              <BentoCard className="min-h-280px">
                 <FilterBar
                   onApply={handleApplyFilter}
                   loading={loading}
@@ -142,7 +142,7 @@ export default function DashboardPage() {
             </div>
 
             {/* About Scrape - Info Sidebar (1/3 width) */}
-            <BentoCard className="min-h-[280px]">
+            <BentoCard className="min-h-280px">
               <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3">About the Scrape</h2>
               {meta ? (
                 <div className="space-y-3">
@@ -182,7 +182,7 @@ export default function DashboardPage() {
           {/* Stat Cards Row */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             {visualCards.map((card, idx) => (
-              <BentoCard key={idx} className="relative overflow-hidden min-h-[140px]">
+              <BentoCard key={idx} className="relative overflow-hidden min-h-140px">
                 <div className="absolute inset-0 opacity-10" style={{ background: card.gradient }}></div>
                 <div className="relative z-10 h-full flex flex-col items-center justify-center text-center">
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{card.title}</h3>
@@ -194,7 +194,7 @@ export default function DashboardPage() {
 
           {/* Bottom Row */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-            <BentoCard className="flex flex-col items-center justify-center min-h-[140px]">
+            <BentoCard className="flex flex-col items-center justify-center min-h-140px">
               {meta ? (
                 <>
                   <p className="text-3xl font-bold text-gray-900 dark:text-white">{formatDate(meta.fetched_at)}</p>
@@ -208,7 +208,7 @@ export default function DashboardPage() {
               )}
             </BentoCard>
 
-            <BentoCard className="flex flex-col items-center justify-center min-h-[140px]">
+            <BentoCard className="flex flex-col items-center justify-center min-h-140px">
               {meta ? (
                 <>
                   <p className="text-3xl font-bold text-gray-900 dark:text-white">{formatTime(meta.fetched_at)}</p>
@@ -223,7 +223,7 @@ export default function DashboardPage() {
             </BentoCard>
 
             <Link href="/ui/items" className="group">
-              <BentoCard className="flex flex-col items-center justify-center hover:shadow-lg transition-shadow min-h-[140px]">
+              <BentoCard className="flex flex-col items-center justify-center hover:shadow-lg transition-shadow min-h-140px">
                 <div className="text-xl font-semibold text-[#7BA4D3] group-hover:text-[#5A85B3]">
                   View More
                 </div>
@@ -232,18 +232,13 @@ export default function DashboardPage() {
             </Link>
 
             <Link href="/ui/live" className="group">
-              <BentoCard className="flex flex-col items-center justify-center hover:shadow-lg transition-shadow min-h-[140px]">
+              <BentoCard className="flex flex-col items-center justify-center hover:shadow-lg transition-shadow min-h-140px">
                 <div className="text-xl font-semibold text-[#FF6B6B] group-hover:text-[#FF5252]">
                   Live Feed
                 </div>
                 <p className="text-sm text-gray-500 mt-1">Real-time WebSocket listings</p>
               </BentoCard>
             </Link>
-
-            <BentoCard className="flex flex-col items-center justify-center bg-gradient-to-br from-[#7BA4D3] to-[#8EC5FC] text-white min-h-[140px]">
-              <div className="text-2xl font-bold">TF2 Market</div>
-              <p className="text-sm mt-2 opacity-90">Real-time pricing</p>
-            </BentoCard>
           </div>
         </div>
       </div>

@@ -98,7 +98,7 @@ export default function ItemDetailPage({ params }: { params: Promise<{ id: strin
         <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
           <div className="p-6 md:p-8">
             <div className="flex flex-col md:flex-row gap-6">
-              <div className="flex-shrink-0 w-48 h-48 md:w-64 md:h-64 rounded-2xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center overflow-hidden">
+              <div className="shrink-0 w-48 h-48 md:w-64 md:h-64 rounded-2xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center overflow-hidden">
                 {getImageUrl(item.imageItem) ? (
                   <img
                     src={getImageUrl(item.imageItem)}
@@ -157,7 +157,7 @@ export default function ItemDetailPage({ params }: { params: Promise<{ id: strin
                   </div>
                   <div className="bg-gray-100 dark:bg-gray-700 rounded-xl p-3">
                     <p className="text-gray-500 dark:text-gray-400">Bot SteamID</p>
-                    <p className="font-mono font-medium text-gray-900 dark:text-white truncate max-w-[150px]">{item.assetId ? item.assetId.slice(0, 12) + '...' : '-'}</p>
+                    <p className="font-mono font-medium text-gray-900 dark:text-white truncate max-w-150px">{item.assetId ? item.assetId.slice(0, 12) + '...' : '-'}</p>
                   </div>
                 </div>
               </div>

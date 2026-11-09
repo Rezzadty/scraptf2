@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { useDarkMode } from '@/shared/lib/darkMode';
 import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
 import { useLiveListings, LiveListing } from '@/shared/hooks/useLiveListings';
+import { ItemDetailModal } from '@/shared/ui/ItemDetailModal';
+import { Item } from '@/shared/types/item';
 
 function formatPrice(cents: number): string {
   return new Intl.NumberFormat('en-US', {
@@ -35,6 +37,7 @@ function getManncoUrl(slug?: string, itemId?: number): string | undefined {
 
 export function LiveListingsPage() {
   const { theme, toggleTheme } = useDarkMode();
+  const [selectedItem, setSelectedItem] = useState<Item | null>(null);
   const [filters, setFilters] = useState({
     search: '',
     priceMin: '',
@@ -52,6 +55,9 @@ export function LiveListingsPage() {
 
   const filteredListings = useMemo(() => {
     return listings.filter((l) => {
+      // Focus on Team Fortress 2 items only (game_id 440)
+      if (l.game_id && l.game_id !== 440) return false;
+
       const matchesSearch = l.name.toLowerCase().includes(filters.search.toLowerCase());
       if (!matchesSearch) return false;
 
@@ -100,6 +106,9 @@ export function LiveListingsPage() {
                 Back
               </Link>
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Live Listings</h1>
+              <span className="text-xs px-2.5 py-1 rounded-full font-medium bg-[#7BA4D3]/15 text-[#5A85B3] border border-[#7BA4D3]/30">
+                TF2 (440) Only
+              </span>
 
               <span className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${statusColors[status]} text-white`}>
                 <span className="w-2 h-2 rounded-full bg-current animate-pulse" />
@@ -195,17 +204,34 @@ export function LiveListingsPage() {
                   >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        {listing.image && (
-                          <img
-                            src={getImageUrl(listing.image)}
-                            alt={listing.name}
-                            className="w-10 h-10 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
-                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                          />
+                        {listing.image ? (
+                          <div className="w-12 h-12 flex-shrink-0 rounded-xl bg-gray-100 dark:bg-gray-700/60 p-1 flex items-center justify-center border border-gray-200 dark:border-gray-700">
+                            <img
+                              src={getImageUrl(listing.image)}
+                              alt={listing.name}
+                              className="w-full h-full object-contain"
+                              onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                            />
+                          </div>
+                        ) : (
+                          <div className="w-12 h-12 flex-shrink-0 rounded-xl bg-gray-100 dark:bg-gray-700/60 flex items-center justify-center border border-gray-200 dark:border-gray-700">
+                            <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                          </div>
                         )}
                         <div>
-                          <p className="font-medium text-gray-900 dark:text-white">{listing.name}</p>
-                          <p className="text-xs text-gray-500 font-mono">ID: {listing.id} • Item: {listing.itemId}</p>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <p className="font-medium text-gray-900 dark:text-white">{listing.name}</p>
+                            {listing.quality && (
+                              <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-[#7BA4D3]/15 text-[#5A85B3]">
+                                {listing.quality}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-gray-500 font-mono">
+                            ID: {listing.id} • Item: {listing.itemId}{listing.type ? ` • ${listing.type}` : ''}
+                          </p>
                         </div>
                       </div>
                     </td>
@@ -216,19 +242,28 @@ export function LiveListingsPage() {
                       {relativeTime(listing.ts)}
                     </td>
                     <td className="px-6 py-4">
-                      {getManncoUrl(listing.slug ?? undefined, listing.itemId) && (
-                        <a
-                          href={getManncoUrl(listing.slug ?? undefined, listing.itemId)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all bg-[#7BA4D3]/15 text-[#5A85B3] hover:bg-[#7BA4D3] hover:text-white"
-                        >
-                          <span>View</span>
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                          </svg>
-                        </a>
-                      )}
+                      <button
+                        onClick={() =>
+                          setSelectedItem({
+                            id: listing.id,
+                            item_id: listing.itemId,
+                            assetId: listing.assetId,
+                            name: listing.name,
+                            price: listing.price,
+                            imageItem: listing.image || undefined,
+                            item_url: getManncoUrl(listing.slug ?? undefined, listing.itemId),
+                            craftable: listing.craftable,
+                            quality: listing.quality,
+                            type: listing.type,
+                          })
+                        }
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all bg-[#7BA4D3]/15 text-[#5A85B3] hover:bg-[#7BA4D3] hover:text-white"
+                      >
+                        <span>Details</span>
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -257,6 +292,12 @@ export function LiveListingsPage() {
             </div>
           )}
         </div>
+
+        <ItemDetailModal
+          item={selectedItem}
+          isOpen={!!selectedItem}
+          onClose={() => setSelectedItem(null)}
+        />
       </div>
     </ErrorBoundary>
   );

@@ -63,14 +63,14 @@ export function Toast({ message, type = 'success', onClose }: ToastProps) {
       role="alert"
       aria-live="polite"
     >
-      <span className={`flex-shrink-0 ${iconColors[type]}`}>{icons[type]}</span>
+      <span className={`shrink-0 flex ${iconColors[type]}`}>{icons[type]}</span>
       <p className="text-sm font-medium flex-1">{message}</p>
       <button
         onClick={() => {
           setIsExiting(true);
           setTimeout(() => onClose(), 300);
         }}
-        className="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors p-1"
+        className="shrink-0 flex text-gray-400 hover:text-gray-600 transition-colors p-1"
         aria-label="Dismiss"
       >
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

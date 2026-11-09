@@ -20,6 +20,8 @@ export interface Item {
   bot?: string;
   item_url?: string;
   url?: string;
+  quality?: string;
+  type?: string;
 }
 
 export interface Meta {

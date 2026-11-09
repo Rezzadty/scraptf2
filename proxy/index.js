@@ -1,12 +1,16 @@
 import express from 'express';
-import { WebSocketServer } from 'ws';
+import { WebSocketServer, WebSocket } from 'ws';
 import { createServer } from 'http';
 import fetch from 'node-fetch';
-import { WebSocket } from 'ws';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs';
 
-dotenv.config();
+const __dirname = dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: join(__dirname, '.env') });
+dotenv.config({ path: join(__dirname, '..', '.env') });
 
 const app = express();
 app.use(cors());
@@ -15,7 +19,7 @@ app.use(express.json());
 const PORT = process.env.PROXY_PORT || 3001;
 const MANNCO_WS_URL = 'wss://api.mannco.store/ws';
 const MANNCO_API_BASE = 'https://api.mannco.store';
-const API_KEY = process.env.MANNCO_API_KEY;
+const API_KEY = process.env.MANNCO_API_KEY || process.env.API_TOKEN;
 
 if (!API_KEY) {
   console.error('MANNCO_API_KEY not set in .env');
@@ -26,6 +30,7 @@ if (!API_KEY) {
 const itemCache = new Map();
 
 // JWT token management
+const JWT_CACHE_FILE = join(__dirname, '..', 'data', '.jwt_cache.json');
 let jwtToken = null;
 let jwtExpiry = 0;
 
@@ -34,6 +39,17 @@ async function getJwtToken() {
   if (jwtToken && jwtExpiry > now + 60000) {
     return jwtToken;
   }
+
+  try {
+    if (existsSync(JWT_CACHE_FILE)) {
+      const cached = JSON.parse(readFileSync(JWT_CACHE_FILE, 'utf-8'));
+      if (cached.jwt && cached.exp * 1000 > now + 60000) {
+        jwtToken = cached.jwt;
+        jwtExpiry = cached.exp * 1000;
+        return jwtToken;
+      }
+    }
+  } catch {}
 
   try {
     const res = await fetch(`${MANNCO_API_BASE}/user/login`, {
@@ -47,10 +63,15 @@ async function getJwtToken() {
       jwtToken = data.content.jwt;
       // JWT typically expires in 24h, refresh 5min early
       jwtExpiry = now + 23 * 60 * 60 * 1000;
+      try {
+        mkdirSync(join(__dirname, '..', 'data'), { recursive: true });
+        writeFileSync(JWT_CACHE_FILE, JSON.stringify({ jwt: jwtToken, exp: Math.floor(jwtExpiry / 1000) }));
+      } catch {}
       console.log('[proxy] JWT obtained');
       return jwtToken;
     }
-    throw new Error(data.message || 'Login failed');
+    const errMessage = data.message || (typeof data.content === 'string' ? data.content : 'Login failed');
+    throw new Error(errMessage);
   } catch (e) {
     console.error('[proxy] JWT fetch failed:', e.message);
     throw e;
@@ -62,9 +83,9 @@ async function fetchItemDetails(itemId) {
     return itemCache.get(itemId);
   }
 
-  const token = await getJwtToken();
   try {
-    const res = await fetch(`${MANNCO_API_BASE}/item/${itemId}`, {
+    const token = await getJwtToken();
+    const res = await fetch(`${MANNCO_API_BASE}/item/details/${itemId}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -80,24 +101,26 @@ async function fetchItemDetails(itemId) {
     const info = data?.content?.informations;
     if (!info) throw new Error('No item info in response');
 
+    const gameId = Number(info.game ?? info.game_id ?? 440);
     const item = {
       id: info.id,
       name: info.name,
-      slug: info.url || `${info.game_id}-${info.id}`,
+      slug: info.url || `${gameId}-${info.id}`,
       image: info.image,
-      game_id: info.game_id,
+      game_id: gameId,
       quality: info.quality,
+      type: info.type,
       craftable: info.craftable === 1,
       price: info.price,
     };
 
     itemCache.set(itemId, item);
-    console.log(`[proxy] Cached item ${itemId}: ${item.name}`);
+    console.log(`[proxy] Cached item ${itemId}: ${item.name} (game ${gameId})`);
     return item;
   } catch (e) {
     console.error(`[proxy] Failed to fetch item ${itemId}:`, e.message);
     // Return placeholder
-    const placeholder = { id: itemId, name: `Item #${itemId}`, slug: null, image: null };
+    const placeholder = { id: itemId, name: `Item #${itemId}`, slug: null, image: null, game_id: 440 };
     itemCache.set(itemId, placeholder);
     return placeholder;
   }
@@ -143,35 +166,47 @@ function connectToMannco() {
     const { event, ts, data } = msg;
     if (!event || !data) return;
 
-    if (event === 'listing_added') {
-      const { id, assetId, itemId, price } = data;
-      const itemDetails = await fetchItemDetails(itemId);
+    try {
+      if (event === 'listing_added') {
+        const { id, assetId, itemId, price } = data;
+        const itemDetails = await fetchItemDetails(itemId);
 
-      broadcast({
-        type: 'listing_added',
-        listing: {
-          id,
-          assetId,
-          itemId,
-          price,
-          ts,
-          name: itemDetails.name,
-          slug: itemDetails.slug,
-          image: itemDetails.image,
-          game_id: itemDetails.game_id,
-        },
-      });
-    } else if (event === 'listing_removed') {
-      broadcast({ type: 'listing_removed', id: data.id });
-    } else if (event === 'price_changed') {
-      broadcast({
-        type: 'price_changed',
-        id: data.id,
-        assetId: data.assetId,
-        itemId: data.itemId,
-        oldPrice: data.oldPrice,
-        newPrice: data.newPrice,
-      });
+        // Filter: only Team Fortress 2 items (game_id 440)
+        if (itemDetails.game_id && itemDetails.game_id !== 440) {
+          return;
+        }
+
+        broadcast({
+          type: 'listing_added',
+          listing: {
+            id,
+            assetId,
+            itemId,
+            price,
+            ts,
+            name: itemDetails.name,
+            slug: itemDetails.slug,
+            image: itemDetails.image,
+            game_id: itemDetails.game_id,
+            quality: itemDetails.quality,
+            type: itemDetails.type,
+            craftable: itemDetails.craftable,
+          },
+        });
+      } else if (event === 'listing_removed') {
+        broadcast({ type: 'listing_removed', id: data.id });
+      } else if (event === 'price_changed') {
+        broadcast({
+          type: 'price_changed',
+          id: data.id,
+          assetId: data.assetId,
+          itemId: data.itemId,
+          oldPrice: data.oldPrice,
+          newPrice: data.newPrice,
+        });
+      }
+    } catch (err) {
+      console.error('[proxy] Message handling error:', err.message);
     }
     // Ignore other events
   });

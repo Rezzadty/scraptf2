@@ -106,11 +106,23 @@ export function ItemDetailModal({ item, isOpen, onClose }: ItemDetailModalProps)
               <h2 id="modal-title" className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{item.name || 'Unknown Item'}</h2>
 
               <div className="flex flex-wrap gap-2 mb-4">
-                <span className={`px-3 py-1 rounded-full text-sm ${item.craftable
-                  ? 'bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400'
-                  : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'}`}>
-                  {item.craftable ? 'Craftable' : 'Non-Craftable'}
-                </span>
+                {item.quality && (
+                  <span className="px-3 py-1 rounded-full text-sm bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-400">
+                    {item.quality}
+                  </span>
+                )}
+                {item.type && (
+                  <span className="px-3 py-1 rounded-full text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+                    {item.type}
+                  </span>
+                )}
+                {item.craftable !== undefined && (
+                  <span className={`px-3 py-1 rounded-full text-sm ${item.craftable
+                    ? 'bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'}`}>
+                    {item.craftable ? 'Craftable' : 'Non-Craftable'}
+                  </span>
+                )}
                 {item.paint && <span className="px-3 py-1 rounded-full text-sm bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-400">Painted</span>}
                 {item.festivized && <span className="px-3 py-1 rounded-full text-sm bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-400">Festivized</span>}
                 {item.killstreaker && <span className="px-3 py-1 rounded-full text-sm bg-pink-100 dark:bg-pink-900/50 text-pink-700 dark:text-pink-400">Killstreak</span>}

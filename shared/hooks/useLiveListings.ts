@@ -12,6 +12,9 @@ export interface LiveListing {
   slug: string | undefined;
   image: string | null;
   game_id: number;
+  craftable?: boolean;
+  quality?: string;
+  type?: string;
 }
 
 export interface UseLiveListingsOptions {
@@ -56,7 +59,12 @@ export function useLiveListings(options: UseLiveListingsOptions = {}): UseLiveLi
   const reconnectDelayRef = useRef(1000);
 
   const connect = useCallback(() => {
-    if (wsRef.current?.readyState === WebSocket.OPEN) return;
+    if (
+      wsRef.current?.readyState === WebSocket.OPEN ||
+      wsRef.current?.readyState === WebSocket.CONNECTING
+    ) {
+      return;
+    }
 
     try {
       const ws = new WebSocket(proxyUrl);
@@ -109,7 +117,7 @@ export function useLiveListings(options: UseLiveListingsOptions = {}): UseLiveLi
 
       ws.onerror = (err) => {
         setError('WebSocket error');
-        console.error('[live] WS error:', err);
+        console.warn('[live] WS connection error, reconnecting...', err);
       };
     } catch (e) {
       setError('Failed to connect');
@@ -121,7 +129,14 @@ export function useLiveListings(options: UseLiveListingsOptions = {}): UseLiveLi
     connect();
     return () => {
       if (reconnectTimeoutRef.current) clearTimeout(reconnectTimeoutRef.current);
-      wsRef.current?.close();
+      if (wsRef.current) {
+        wsRef.current.onopen = null;
+        wsRef.current.onmessage = null;
+        wsRef.current.onerror = null;
+        wsRef.current.onclose = null;
+        wsRef.current.close();
+        wsRef.current = null;
+      }
     };
   }, [connect]);
 

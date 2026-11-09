@@ -475,7 +475,7 @@ export function AllItems() {
                         {item.craftable ? 'Yes' : 'No'}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-gray-500 font-mono text-sm max-w-[150px] truncate">
+                    <td className="px-6 py-4 text-gray-500 font-mono text-sm max-w-150px truncate">
                       {item.bot ? item.bot.slice(-8) : '-'}
                     </td>
                     <td className="px-6 py-4">
